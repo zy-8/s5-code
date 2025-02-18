@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./IERC20.sol";
 
-interface IERC777Recipient {
+interface ITokenReceiver {
     function tokensReceived(address sender, uint256 amount) external;
 }
 
@@ -94,7 +94,7 @@ contract ERC20 is IERC20 {
         emit Transfer(msg.sender, recipient, amount);
         // 如果目标地址是合约地址，调用tokensReceived方法
         if (isContract(recipient)) {
-            IERC777Recipient(recipient).tokensReceived(msg.sender, amount);
+            ITokenReceiver(recipient).tokensReceived(msg.sender, amount);
         }
     }
 
