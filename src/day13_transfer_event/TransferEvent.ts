@@ -1,7 +1,8 @@
-import {erc20Abi, formatUnits, decodeFunctionData, parseEventLogs} from 'viem'
+import {erc20Abi, formatUnits, decodeFunctionData, parseAbiItem} from 'viem'
 import {publicClient, publicWsClient} from '../day10_viem/client'
 
 const USDC_ADDRESS = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
 
 /**
  * 查询最近一百个区块 USDC Transfer事件
@@ -12,7 +13,7 @@ async function get100BlockTransferEvent() {
         address: USDC_ADDRESS,
         abi: erc20Abi,
         eventName: 'Transfer',
-        fromBlock: blockNumber - 100n,
+        fromBlock: blockNumber - 99n,
         toBlock: blockNumber
     })
 
@@ -57,9 +58,9 @@ async function getPendingTransfer() {
 
 
 /**
- * 监听USDC 的Transfer Pending 交易
+ * 监听USDT 的Transfer Pending 交易
  */
-async function getUSDCPendingTransferEvent() {
+async function getContractPendingTransferEvent(tokenAddress: `0x${string}`) {
     // 监听 pending 交易
     const unwatch = publicWsClient.watchPendingTransactions({
         onTransactions: async(hashes) => {
@@ -68,8 +69,8 @@ async function getUSDCPendingTransferEvent() {
                 try {
                     const transaction = await publicClient.getTransaction({ hash })
 
-                    // 检查是否是USDC合约交易
-                    if (transaction.to?.toLowerCase() === USDC_ADDRESS.toLowerCase()) {
+                    // 检查是否是tokenAddress合约交易
+                    if (transaction.to?.toLowerCase() === tokenAddress.toLowerCase()) {
                         try {
                             const { args, functionName } = decodeFunctionData({
                                 abi: erc20Abi,
@@ -78,8 +79,9 @@ async function getUSDCPendingTransferEvent() {
 
                             // 检查是否是transfer或transferFrom函数
                             if (functionName === 'transfer' || functionName === 'transferFrom') {
-                                console.log('发现 USDC Transfer Pending 交易:')
+                                console.log('发现 USDT Transfer Pending 交易:')
                                 console.log({
+                                    blockNumber: transaction.blockNumber,
                                     hash: transaction.hash,
                                     from: transaction.from,
                                     to: args[0],  // 接收地址
@@ -111,11 +113,8 @@ async function getUSDCPendingTransferEvent() {
 }
 
 async function main() {
-    await get100BlockTransferEvent();
-
-    // console.log('开始监听 pending 交易...')
-    // await getUSDCPendingTransferEvent()
-    // console.log('监听结束')
+    // await get100BlockTransferEvent();
+    await getContractPendingTransferEvent(USDT_ADDRESS)
 }
 
 main()
