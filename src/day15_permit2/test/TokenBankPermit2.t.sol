@@ -17,12 +17,6 @@ contract TestToken is ERC20 {
 }
 
 contract TokenBankPermit2Test is Test {
-    bytes32 public constant _PERMIT_DETAILS_TYPEHASH =
-        keccak256("PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)");
-
-    bytes32 public constant _PERMIT_SINGLE_TYPEHASH = keccak256(
-        "PermitSingle(PermitDetails details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)"
-    );
 
     TestToken public token;
     Permit2 public permit2;
