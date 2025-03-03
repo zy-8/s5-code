@@ -34,20 +34,20 @@ contract TokenBankPermit2 {
         // 更新用户余额
         balances[msg.sender] += amount;
         permit2.permitTransferFrom(
-            //单个令牌传输的已签名许可消息
+        //单个令牌传输的已签名许可消息
             ISignatureTransfer.PermitTransferFrom({
-                // 在许可转让签名中签署的转让令牌和金额详细信息
+            // 在许可转让签名中签署的转让令牌和金额详细信息
                 permitted: ISignatureTransfer.TokenPermissions({token: address(token), amount: amount}),
-                // 每个令牌所有者的唯一值，以防止签名重放
+            // 每个令牌所有者的唯一值，以防止签名重放
                 nonce: nonce,
-                // 许可证签字的截止日期
+            // 许可证签字的截止日期
                 deadline: deadline
             }),
             // transferDetails发送者请求的允许令牌的传输详细信息
             ISignatureTransfer.SignatureTransferDetails({
-                // 设置接收者地址
+            // 设置接收者地址
                 to: address(this),
-                // 设置请求的金额
+            // 设置请求的金额
                 requestedAmount: amount
             }),
             // 设置发送者地址
@@ -70,7 +70,7 @@ contract TokenBankPermit2 {
         balances[msg.sender] -= amount;
 
         // 转移代币给用户
-        require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        require(IERC20(token).transfer(msg.sender, amount), "Transfer failed");
 
         emit Withdraw(msg.sender, amount);
     }
