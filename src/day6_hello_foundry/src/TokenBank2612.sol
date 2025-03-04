@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
-
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract TokenBank2612  {
 
     IERC20 public immutable token;
@@ -35,8 +35,7 @@ contract TokenBank2612  {
             "Insufficient allowance");
 
         // 转移代币到合约
-        require(token.transferFrom(msg.sender, address(this), amount),
-            "Transfer failed");
+        SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
         // 更新用户余额
         balances[msg.sender] += amount;
@@ -55,8 +54,7 @@ contract TokenBank2612  {
         // 先更新状态，防止重入攻击
         balances[msg.sender] -= amount;
 
-        // 使用同一个接口
-        require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        SafeERC20.safeTransfer(token, msg.sender, amount);
 
         emit Withdraw(msg.sender, amount);
     }
@@ -72,7 +70,7 @@ contract TokenBank2612  {
      */
     function permitDeposit(uint256 amount, address owner, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
         tokenPermit.permit(owner, address(this), amount, deadline, v, r, s);
-        token.transferFrom(owner, address(this), amount);
+        SafeERC20.safeTransferFrom(token, owner, address(this), amount);
         balances[owner] += amount;
         emit PermitDeposit(owner, amount, deadline, v, r, s);
     }

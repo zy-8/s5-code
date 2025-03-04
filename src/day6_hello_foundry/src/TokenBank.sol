@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "./IERC20.sol";
-
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract TokenBank  {
     IERC20 public token;
 
@@ -30,8 +30,7 @@ contract TokenBank  {
             "Insufficient allowance");
 
         // 转移代币到合约
-        require(token.transferFrom(msg.sender, address(this), amount),
-            "Transfer failed");
+        SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
         // 更新用户余额
         balances[msg.sender] += amount;
@@ -46,13 +45,10 @@ contract TokenBank  {
     function withdraw(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
         require(balances[msg.sender] >= amount, "Insufficient balance");
-
         // 先更新状态，防止重入攻击
         balances[msg.sender] -= amount;
-
         // 转移代币给用户
-        require(token.transfer(msg.sender, amount), "Transfer failed");
-
+        SafeERC20.safeTransfer(token, msg.sender, amount);
         emit Withdraw(msg.sender, amount);
     }
 
