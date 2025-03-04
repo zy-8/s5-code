@@ -1,0 +1,22 @@
+type TokenCreated @entity(immutable: true) {
+  id: Bytes!
+  tokenAddr: Bytes! # address
+  creator: Bytes! # address
+  symbol: String! # string
+  totalSupply: BigInt! # uint256
+  perMint: BigInt! # uint256
+  price: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokenMinted @entity(immutable: true) {
+  id: Bytes!
+  tokenAddr: Bytes! # address
+  creator: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

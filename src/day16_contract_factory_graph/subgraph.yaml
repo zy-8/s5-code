@@ -1,0 +1,29 @@
+specVersion: 1.2.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Factory
+    network: sepolia
+    source:
+      address: "0x737fAaBE3C5d15ef527c68A6d9e858AFbd7EE995"
+      abi: Factory
+      startBlock: 7829069
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - TokenCreated
+        - TokenMinted
+      abis:
+        - name: Factory
+          file: ./abis/Factory.json
+      eventHandlers:
+        - event: TokenCreated(indexed address,indexed address,string,uint256,uint256,uint256)
+          handler: handleTokenCreated
+        - event: TokenMinted(indexed address,indexed address,uint256)
+          handler: handleTokenMinted
+      file: ./src/factory.ts

@@ -1,0 +1,18 @@
+{
+  "name": "contract_factory",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ contract_factory",
+    "create-local": "graph create --node http://localhost:8020/ contract_factory",
+    "remove-local": "graph remove --node http://localhost:8020/ contract_factory",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 contract_factory",
+    "test": "graph test"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.96.0",
+    "@graphprotocol/graph-ts": "0.37.0"
+  },
+  "devDependencies": { "matchstick-as": "0.6.0" }
+}
