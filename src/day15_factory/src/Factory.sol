@@ -14,7 +14,7 @@ contract TokenImpl is ERC20 {
     string private _tokenSymbol;
     // 是否初始化
     bool private initialized;
-    
+
     constructor() ERC20("","") {}
 
     function initialize(string memory symbol_, address factory_) external {
@@ -41,7 +41,7 @@ contract Factory {
     using Clones for address;
 
     // 手续费 10%
-    uint256 public constant FEE_PERCENTAGE = 10; 
+    uint256 public constant FEE_PERCENTAGE = 10;
     struct TokenInfo {
         string symbol; // 代号
         uint256 totalSupply; // 总发行量
@@ -58,7 +58,12 @@ contract Factory {
     address public tokenImpl;
     // 代币实现合约所有者
     address public owner;
-    
+
+    // 部署事件
+    event TokenCreated(address indexed tokenAddr, address indexed creator, string symbol, uint256 totalSupply, uint256 perMint, uint256 price);
+    // 铸造事件
+    event TokenMinted(address indexed tokenAddr, address indexed creator, uint256 amount);
+
     constructor(address _tokenImpl) {
         tokenImpl = _tokenImpl;
         owner = msg.sender;
@@ -66,8 +71,6 @@ contract Factory {
 
     // ⽤户调⽤该⽅法创建 ERC20 Token合约，
     function deployToken(TokenInfo memory tokenInfo) public returns (address) {
-        // 检查调用者是否已创建代币
-        require(tokenToCreator[msg.sender] == address(0), "Address is not valid");
         // 检查铸造数量是否大于0
         require(tokenInfo.totalSupply > 0, "Total supply is not enough");
         // 检查铸造数量是否大于0
@@ -77,7 +80,7 @@ contract Factory {
 
         // 使用最小代理克隆合约
         address clone = tokenImpl.clone();
-        
+
         // 初始化代币实现合约，传入 factory 地址
         TokenImpl(clone).initialize(tokenInfo.symbol, address(this));
 
@@ -85,6 +88,10 @@ contract Factory {
         tokenToTokenInfo[clone] = tokenInfo;
         // 将合约地址和发行者存储到 mapping 中
         tokenToCreator[clone] = msg.sender;
+
+        // 触发部署事件
+        emit TokenCreated(clone, msg.sender, tokenInfo.symbol, tokenInfo.totalSupply, tokenInfo.perMint, tokenInfo.price);
+
         return clone;
     }
 
@@ -113,5 +120,8 @@ contract Factory {
         TokenImpl(tokenAddr).mint(msg.sender, tokenInfo.perMint);
         // 铸造总数量 + 当前铸造数量
         tokenToMint[tokenAddr] += tokenInfo.perMint;
+
+        // 触发铸造事件
+        emit TokenMinted(tokenAddr, msg.sender, tokenInfo.perMint);
     }
 }

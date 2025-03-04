@@ -2,17 +2,19 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IPermit2.sol";
 
 contract TokenBankPermit2 {
     IPermit2 public permit2;
 
     // 记录用户存款
-    mapping(address => uint256) public balances;
+    // token => user => amount
+    mapping(address => mapping(address => uint256)) public balances;
 
     // 事件
-    event Deposit(address indexed user, uint256 amount);
-    event Withdraw(address indexed user, uint256 amount);
+    event Deposit(address indexed token, address indexed user, uint256 amount);
+    event Withdraw(address indexed token, address indexed user, uint256 amount);
 
     constructor(address _permit2) {
         require(_permit2 != address(0), "Token address cannot be zero");
@@ -21,7 +23,11 @@ contract TokenBankPermit2 {
 
     /**
      * @notice 存入代币
+     * @param token 代币地址
      * @param amount 存入数量
+     * @param nonce 防重放 nonce
+     * @param deadline 签名截止时间
+     * @param signature 签名数据
      */
     function depositWithPermit2(
         address token,
@@ -30,9 +36,8 @@ contract TokenBankPermit2 {
         uint256 deadline,
         bytes calldata signature
     ) external {
-        require(amount > 0, "Amount must be greater than 0");
         // 更新用户余额
-        balances[msg.sender] += amount;
+        balances[token][msg.sender] += amount;
         permit2.permitTransferFrom(
         //单个令牌传输的已签名许可消息
             ISignatureTransfer.PermitTransferFrom({
@@ -55,23 +60,20 @@ contract TokenBankPermit2 {
             // 要验证的签名
             signature
         );
-        emit Deposit(msg.sender, amount);
+        emit Deposit(token, msg.sender, amount);
     }
 
     /**
      * @notice 提取代币
+     * @param token 代币地址
      * @param amount 提取数量
      */
     function withdraw(address token, uint256 amount) external {
-        require(amount > 0, "Amount must be greater than 0");
-        require(balances[msg.sender] >= amount, "Insufficient balance");
-
+        require(balances[token][msg.sender] >= amount, "Insufficient balance");
         // 先更新状态，防止重入攻击
-        balances[msg.sender] -= amount;
-
+        balances[token][msg.sender] -= amount;
         // 转移代币给用户
-        require(IERC20(token).transfer(msg.sender, amount), "Transfer failed");
-
-        emit Withdraw(msg.sender, amount);
+        SafeERC20.safeTransfer(IERC20(token), msg.sender, amount);
+        emit Withdraw(token, msg.sender, amount);
     }
 }
