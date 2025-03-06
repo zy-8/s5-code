@@ -73,7 +73,7 @@ contract NFTMarketV1Test is Test {
                 1,
                 100 ether,
                 address(0),
-                0,
+                block.timestamp,
                 block.timestamp + 1 days
             )
         );
@@ -98,7 +98,7 @@ contract NFTMarketV1Test is Test {
             1,
             100 ether,
             address(0),
-            0,
+            block.timestamp,
             block.timestamp + 1 days,
             signature
         );
@@ -106,8 +106,6 @@ contract NFTMarketV1Test is Test {
 
         // 验证 NFT 是否转移给买家
         assertEq(erc721.ownerOf(1), buyer);
-
-
     }
 
     //测试正例ERC20支付
@@ -123,7 +121,7 @@ contract NFTMarketV1Test is Test {
                 1,
                 100,
                 address(erc20),
-                0,        // nonce
+                block.timestamp,
                 block.timestamp + 1 days
             )
         );
@@ -143,12 +141,12 @@ contract NFTMarketV1Test is Test {
 
         vm.startPrank(buyer);
         erc20.approve(address(nftMarket), 100);
-        nftMarket.orderExecuted(
+        nftMarket.executeOrder(
             address(erc721),
             1,
             100,
             address(erc20),
-            0,
+            block.timestamp,
             block.timestamp + 1 days,
             signature
         );
@@ -171,7 +169,7 @@ contract NFTMarketV1Test is Test {
                 1,
                 100,
                 address(erc20),
-                0,
+                block.timestamp,
                 block.timestamp + 1 days
             )
         );
@@ -192,12 +190,12 @@ contract NFTMarketV1Test is Test {
         vm.startPrank(buyer);
         // 预期签名信息错误 导致交易失败当前时间+2天 买家签名是当前时间+1天
         vm.expectRevert("Invalid signature");
-        nftMarket.orderExecuted(
+        nftMarket.executeOrder(
             address(erc721),
             1,
             100,
             address(erc20),
-            0,
+            block.timestamp,
             block.timestamp + 2 days,
             signature
         );
