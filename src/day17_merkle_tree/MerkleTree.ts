@@ -26,5 +26,5 @@ const leaf = elements[4];
 const proof = merkleTree.getHexProof(leaf);
 console.log("proof:" +proof);
 
-//root:0xae910484c4fff9a5ac816ae497c219ab73f7bb85fd54cc2414440221b308b79d
-//proof:0x64767c6bd9dce402a905bfdb430feb7d9f40eacb4722e23aa1ed58f9e759097f
+//root:0x0bd1abfbca5006a9c51950a9cf02bdfdcfa8a5cfc0c91870360f4f171618fa1d
+//proof:0x00f369b03139ffa987d43ef2453e4b14a9a184bc669bd087e69c25c51332c32f,0xafe8c6eb446c5e2ae4728675ecc904b911ba9edaff8f928bbe51a29dd4ce1e05,0xe532bea76eb3f6c701b02dbfdcbc77fc6d89a3ed2c4a30bd962fbdea284716a2
