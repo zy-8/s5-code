@@ -50,7 +50,7 @@ async function main() {
         const userAndTimeSlot = baseSlot + BigInt(i) * BigInt(2);
         const userAndStartTimeSlotData = await getSlotData(userAndTimeSlot);
         // 解析打包的数据
-        // data 格式: [20 bytes address][8 bytes startTime]
+        // data 格式: [8 bytes startTime] [20 bytes address]
         // address在后20字节
         const user = `0x${userAndStartTimeSlotData.slice(26, 66)}` as `0x${string}`; 
         // startTime在中间8字节
